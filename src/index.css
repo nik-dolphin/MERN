@@ -1,13 +1,111 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.wrapper {
+  height: 100vh;
+}
+.bi {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+/*
+ * Sidebar
+ */
+
+@media (min-width: 768px) {
+  .sidebar .offcanvas-lg {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 48px;
+  }
+  .navbar-search {
+    display: block;
+  }
+}
+
+.sidebar .nav-link {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.sidebar .nav-link.active {
+  color: #2470dc;
+}
+
+.sidebar-heading {
+  font-size: 0.75rem;
+}
+
+/*
+ * Navbar
+ */
+
+.navbar-brand {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  background-color: rgba(0, 0, 0, 0.25);
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.25);
+}
+
+.navbar .form-control {
+  padding: 0.75rem 1rem;
+}
+
+#role {
+  appearance: none;
+}
+.ag-theme-quartz .ag-header-cell-label {
+  justify-content: center;
+}
+
+/* testing dashboard */
+
+.bg-landing-section {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+    url(https://edyoda.s3.ap-south-1.amazonaws.com/public/landing-background.png);
+  background-position: left;
+  background-size: cover;
+}
+
+/* -------------------------------------------------------------------------- */
+/* 
+#stats-section {
+  width: 100%;
+  background-color: #f6fcfa;
+}
+
+#stats-wrapper {
+  width: 100%;
+  max-width: 1140px;
+  padding: 100px 0;
+  margin: 0 auto;
+  text-align: center;
+  display: flex;
+  justify-content: stretch;
+}
+
+.stats-item {
+  width: 25%;
+  padding: 0 64px;
+}
+
+.stats-item h3 {
+  font-size: 44px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.stats-item p {
+  color: #57e3b5;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  font-style: italic;
+  margin: 0;
+} */
+
+.product-list .ag-theme-quartz {
+  --ag-row-height: 100px !important;
 }
