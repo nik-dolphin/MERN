@@ -11,6 +11,7 @@ import {
   FaWeixin,
 } from "react-icons/fa";
 import { useForm, ValidationError } from "@formspree/react";
+import DashboardProducts from "../component/dashboard-products";
 
 const Dashboard = () => {
   const [state, handleSubmit] = useForm("mblrjbwr");
@@ -25,6 +26,7 @@ const Dashboard = () => {
 
   return (
     <>
+      <DashboardProducts />
       <section className="flex justify-center items-center box-border w-full h-screen bg-landing-section">
         <div>
           <h1 className="text-green-2 w-full text-center text-[44px] font-semibold tracking-widest leading-tight">

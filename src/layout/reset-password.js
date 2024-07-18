@@ -5,6 +5,7 @@ import axiosInstance from "../services/axios-client";
 import CustomPasswordInput from "../component/custom-password-input";
 
 const ResetPassword = () => {
+  console.log("__entered");
   let navigate = useNavigate();
   let { userId, token } = useParams();
   const [userData, setUserData] = useState({
@@ -62,7 +63,10 @@ const ResetPassword = () => {
               />
               <button
                 type="submit"
-                className="w-full text-white bg-primary-600 disabled:bg-primary-400 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                disabled={
+                  userData.password === "" || userData.confirm_password === ""
+                }
+                className="w-full text-white bg-green-1 disabled:bg-green-3 hover:bg-green-2 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center"
               >
                 Reset Password
               </button>
@@ -70,7 +74,7 @@ const ResetPassword = () => {
                 Remember your password?{" "}
                 <Link
                   to={"/login"}
-                  className="font-medium text-primary-600 hover:underline dark:text-primary-500"
+                  className="font-medium text-black hover:underline"
                 >
                   Login here
                 </Link>

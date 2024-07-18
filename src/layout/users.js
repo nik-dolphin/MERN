@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { AUTH_TOKEN, USER } from "../constants";
 import { enqueueSnackbar } from "notistack";
 import axiosInstance from "../services/axios-client";
 import { AgGridReact } from "ag-grid-react";
@@ -185,8 +184,34 @@ const Users = () => {
         }
       })
       .catch((error) => {
-        console.log("__error", error);
         enqueueSnackbar(error?.response?.data?.message || error.message, {
+          variant: "error",
+        });
+      });
+  };
+
+  const handleDownloadUserCSV = async () => {
+    await axiosInstance
+      .get(`/download/${contextData?.user?.id}`, {
+        ...contextData?.config,
+        responseType: "blob",
+      })
+      .then((res) => {
+        if (res?.data) {
+          const url = URL.createObjectURL(new Blob([res?.data]));
+          const link = document.createElement("a");
+          link.href = url;
+          link.setAttribute("download", "users.xlsx");
+          document.body.appendChild(link);
+          link.click();
+          URL.revokeObjectURL(url);
+          enqueueSnackbar("Data exported successfully", {
+            variant: "success",
+          });
+        }
+      })
+      .catch((error) => {
+        enqueueSnackbar("Something went wrong", {
           variant: "error",
         });
       });
@@ -196,6 +221,14 @@ const Users = () => {
     <>
       <div className="flex justify-center items-top h-5/6">
         <div className="ag-theme-quartz h-72 px-10 mt-20 w-full max-w-[1640px]">
+          <div className="flex justify-end pb-4">
+            <button
+              className="bg-green-1 hover:bg-green-2 p-4 rounded-md"
+              onClick={handleDownloadUserCSV}
+            >
+              Download users list (xlsx)
+            </button>
+          </div>
           <AgGridReact
             rowData={data}
             columnDefs={columnsAgGrid}

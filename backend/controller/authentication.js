@@ -99,7 +99,6 @@ const login = async (req, res) => {
 
 const logout = async (req, res) => {
   const userData = req.userData;
-  console.log("__userData", userData);
   return await User.findByIdAndUpdate(
     userData.id,
     {

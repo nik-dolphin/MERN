@@ -1,4 +1,6 @@
+const ExcelJS = require("exceljs");
 const db = require("../model");
+const { downloadResource } = require("../utils/utils");
 const User = db.user;
 
 const getAllUsers = async (req, res) => {
@@ -14,7 +16,6 @@ const getAllUsers = async (req, res) => {
 
 const updateUser = async (req, res) => {
   const data = req.body;
-  console.log("__data", data);
   return await User.findByIdAndUpdate(
     data._id,
     {
@@ -57,4 +58,44 @@ const deleteUser = async (req, res) => {
   }
 };
 
-module.exports = { getAllUsers, updateUser, deleteUser };
+const userDownload = async (req, res) => {
+  try {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Users");
+    worksheet.columns = [
+      { header: "Index", key: "index", width: 10 },
+      { header: "Username", key: "username", width: 10 },
+      { header: "Email Address", key: "email", width: 40 },
+      { header: "Role", key: "role", width: 10 },
+    ];
+    let counter = 1;
+    const users = await User.find({}, "username email role");
+    users.forEach((user) => {
+      user.role = user.role === "1" ? "admin" : "user";
+      user.index = counter;
+      worksheet.addRow(user);
+      counter++;
+    });
+    worksheet.getRow(1).eachCell((cell) => {
+      cell.font = { bold: true };
+      cell.alignment = { vertical: "middle", horizontal: "center" };
+    });
+    worksheet.getColumn(1).eachCell((cell) => {
+      cell.alignment = { vertical: "middle", horizontal: "center" };
+    });
+    worksheet.getColumn(4).eachCell((cell) => {
+      cell.alignment = { vertical: "middle", horizontal: "center" };
+    });
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader("Content-Disposition", `attachment; filename="users.xlsx"`);
+    await workbook.xlsx.write(res);
+    res.end();
+  } catch (error) {
+    return res.status(400).send({ message: error.message });
+  }
+};
+
+module.exports = { getAllUsers, updateUser, deleteUser, userDownload };

@@ -10,17 +10,25 @@ const {
   resetPassword,
   changePassword,
 } = require("../controller/authentication");
-const { getAllUsers, deleteUser, updateUser } = require("../controller/user");
+const {
+  getAllUsers,
+  deleteUser,
+  updateUser,
+  userDownload,
+} = require("../controller/user");
 const {
   addProduct,
   getAllProducts,
   upload,
   deleteProduct,
+  getProduct,
+  updateProduct,
 } = require("../controller/product");
 const {
   isAuthenticated,
   restrictTo,
 } = require("../middlewares/isAuthenticated");
+const { conditionalUpload } = require("../middlewares/conditionalUpload");
 
 const router = express.Router();
 
@@ -41,6 +49,7 @@ router.delete(
   restrictTo,
   deleteUser
 );
+router.get("/download/:id", isAuthenticated, userDownload);
 
 //product routes
 router.post(
@@ -50,6 +59,14 @@ router.post(
   upload.single("imageFile"),
   addProduct
 );
+router.post(
+  "/updateProduct/:id/:productId",
+  isAuthenticated,
+  restrictTo,
+  upload.single("imageFile"),
+  updateProduct
+);
+router.get("/getProduct/:productId", getProduct);
 router.get("/getAllProducts", getAllProducts);
 router.delete(
   "/deleteProduct/:id/:deleteId",

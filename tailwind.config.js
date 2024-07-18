@@ -8,6 +8,7 @@ module.exports = {
         green: {
           1: "#aad236",
           2: "#98b83b",
+          3: "#cceb71",
         },
         primary: {
           50: "#eff6ff",

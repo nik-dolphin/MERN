@@ -1,90 +1,97 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
-const Pagination = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
-  const totalItems = 97;
+const PAGE_NUM_TO_SHOW = 6;
+
+const Pagination = ({
+  dataList,
+  totalItems,
+  itemsPerPage,
+  currentPage,
+  setCurrentPage,
+  GetProductsList,
+  setShowProductsPerPage,
+}) => {
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
-  const items = [
-    {
-      id: 1,
-      title: "Back End Developer",
-      department: "Engineering",
-      type: "Full-time",
-      location: "Remote",
-    },
-    {
-      id: 2,
-      title: "Front End Developer",
-      department: "Engineering",
-      type: "Full-time",
-      location: "Remote",
-    },
-    {
-      id: 3,
-      title: "User Interface Designer",
-      department: "Design",
-      type: "Full-time",
-      location: "Remote",
-    },
-  ];
+  const onPageChange = (newPage) => {
+    setCurrentPage(newPage);
+    GetProductsList({ offset: newPage });
+  };
 
-  const handleClickPrevious = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
+  const generatePageNumbers = useMemo(() => {
+    let start = currentPage - Math.floor(PAGE_NUM_TO_SHOW / 2);
+    if (start < 1) {
+      start = 1;
     }
-  };
+    let end = start + PAGE_NUM_TO_SHOW - 1;
 
-  const handleClickNext = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
-
-  const handleClickPage = (page) => {
-    setCurrentPage(page);
-  };
-
-  const getPaginationButtons = () => {
-    const buttons = [];
-    const maxButtons = 7; // Max number of buttons to show (including ellipses)
-    const delta = 2; // How many pages to show around the current page
-
-    if (totalPages <= maxButtons) {
-      // If the total pages are less than or equal to maxButtons, show all pages
-      for (let i = 1; i <= totalPages; i++) {
-        buttons.push(i);
-      }
-    } else {
-      const start = Math.max(currentPage - delta, 1);
-      const end = Math.min(currentPage + delta, totalPages);
-
-      if (start > 1) {
-        buttons.push(1);
-        if (start > 2) {
-          buttons.push("...");
-        }
-      }
-
-      for (let i = start; i <= end; i++) {
-        buttons.push(i);
-      }
-
-      if (end < totalPages) {
-        if (end < totalPages - 1) {
-          buttons.push("...");
-        }
-        buttons.push(totalPages);
+    if (end > totalPages) {
+      end = totalPages;
+      start = end - PAGE_NUM_TO_SHOW + 1;
+      if (start < 1) {
+        start = 1;
       }
     }
 
-    return buttons;
+    const pageNumbers = [];
+
+    for (let i = start; i <= end; i++) {
+      pageNumbers.push(i);
+    }
+    return pageNumbers;
+  }, [currentPage, totalPages]);
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      onPageChange(newPage);
+    }
   };
+
+  useEffect(() => {
+    setShowProductsPerPage(dataList);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, dataList, itemsPerPage]);
 
   return (
-    <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
+    <>
+      <div className="flex items-center justify-start md:justify-center space-x-5 gap-1">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="px-3 md:px-4 py-2 md:py-2 text-white bg-gray-950 hover:bg-gray-800 hover:shadow-lg disabled:bg-slate-700 h-12 w-12 rounded-full transition-colors flex justify-center items-center"
+          style={{ margin: "0" }}
+          aria-label="arrow-left"
+        >
+          <FaChevronLeft isDisabled={currentPage === 1} size={18} />
+        </button>
+        {generatePageNumbers?.map((pageNumber) => (
+          <button
+            key={pageNumber}
+            style={{ margin: "0" }}
+            onClick={() => handlePageChange(pageNumber)}
+            className={`px-3 md:px-4 py-2 md:py-2 text-white ${
+              pageNumber === currentPage
+                ? "border border-theme-alter-color cursor-default"
+                : "text-gray-600"
+            } transition-colors font-paregraph-p3-medium bg-gray-950 hover:bg-gray-800 hover:shadow-lg h-12 w-12 rounded-full`}
+          >
+            {pageNumber}
+          </button>
+        ))}
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages || totalPages === 0}
+          className="px-3 md:px-4 py-2 md:py-2 text-white bg-gray-950 hover:bg-gray-800 disabled:bg-slate-700 hover:shadow-lg h-12 w-12 rounded-full transition-colors flex justify-center items-center"
+          style={{ margin: "0" }}
+          aria-label="arrow-right"
+        >
+          <FaChevronRight
+            isDisabled={currentPage === totalPages || totalPages === 0}
+          />
+        </button>
+      </div>
+      {/* <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
       <div className="flex flex-1 justify-between sm:hidden">
         <button
           onClick={handleClickPrevious}
@@ -104,13 +111,22 @@ const Pagination = () => {
       <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
         <div>
           <p className="text-sm text-gray-700">
-            Showing <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span> to{" "}
-            <span className="font-medium">{Math.min(currentPage * itemsPerPage, totalItems)}</span> of{" "}
-            <span className="font-medium">{totalItems}</span> results
+            Showing{" "}
+            <span className="font-medium">
+              {(currentPage - 1) * itemsPerPage + 1}
+            </span>{" "}
+            to{" "}
+            <span className="font-medium">
+              {Math.min(currentPage * itemsPerPage, totalItems)}
+            </span>{" "}
+            of <span className="font-medium">{totalItems}</span> results
           </p>
         </div>
         <div>
-          <nav aria-label="Pagination" className="isolate inline-flex -space-x-px rounded-md shadow-sm">
+          <nav
+            aria-label="Pagination"
+            className="isolate inline-flex -space-x-px rounded-md shadow-sm"
+          >
             <button
               onClick={handleClickPrevious}
               className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
@@ -119,7 +135,7 @@ const Pagination = () => {
               <span className="sr-only">Previous</span>
               <FaChevronLeft aria-hidden="true" className="h-5 w-5" />
             </button>
-            {getPaginationButtons().map((button, index) =>
+            {generatePageNumbers.map((button, index) =>
               button === "..." ? (
                 <span
                   key={index}
@@ -153,7 +169,8 @@ const Pagination = () => {
           </nav>
         </div>
       </div>
-    </div>
+    </div> */}
+    </>
   );
 };
 

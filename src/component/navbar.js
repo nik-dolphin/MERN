@@ -6,7 +6,7 @@ import { FaRegUser, FaWallet } from "react-icons/fa";
 import { MdFavorite, MdHelp } from "react-icons/md";
 import { TbTruckDelivery } from "react-icons/tb";
 import { Link, useNavigate } from "react-router-dom";
-import { AUTH_TOKEN, USER } from "../constants";
+import { AUTH_TOKEN } from "../constants";
 import { enqueueSnackbar } from "notistack";
 import axiosInstance from "../services/axios-client";
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";

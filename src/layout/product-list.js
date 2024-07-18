@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import Modal from "../component/modal";
 import { AuthenticateContext } from "../App";
 import Pagination from "../component/pagination";
+import { INITIAL_CURRENT_PAGE, SHOW_ITEMS_PER_PAGE } from "../constants";
 
 const TablePlaceHolderHelper = () => {
   return (
@@ -24,10 +25,14 @@ const ProductList = () => {
   const [isDeleteModelOpen, setIsDeleteModelOpen] = useState(false);
   const [isEditMOdalOpen, setIsEditMOdalOpen] = useState(false);
   const [selectedRowData, setSelectedRowData] = useState({});
+  const [totalProductsCount, setTotalProductsCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(INITIAL_CURRENT_PAGE);
+  const [showProductsPerPage, setShowProductsPerPage] = useState([]);
+  console.log("__selectedRowData", showProductsPerPage);
 
-  const getAllProduct = async () => {
+  const getAllProduct = async ({ offset }) => {
     await axiosInstance
-      .get("/getAllProducts")
+      .get(`/getAllProducts?limit=${SHOW_ITEMS_PER_PAGE}&offset=${offset}`)
       .then((res) => {
         if (res) {
           const response = res?.data?.data?.map((item, index) => ({
@@ -35,6 +40,7 @@ const ProductList = () => {
             index: index + 1,
           }));
           setData(response);
+          setTotalProductsCount(res?.data?.totalCount);
         }
       })
       .catch((error) => {
@@ -46,7 +52,7 @@ const ProductList = () => {
 
   useEffect(() => {
     if (ref.current) {
-      getAllProduct();
+      getAllProduct({ offset: INITIAL_CURRENT_PAGE });
       ref.current = false;
     }
   }, []);
@@ -63,7 +69,6 @@ const ProductList = () => {
       minWidth: 200,
     };
   }, []);
-  console.log("__data", data);
 
   const columnsAgGrid = useMemo(
     () => [
@@ -78,25 +83,31 @@ const ProductList = () => {
         field: "product_image",
         headerName: "Product Image",
         cellStyle: { textAlign: "center" },
-        cellRenderer: (props) => (
-          <div className="flex flex-row justify-center items-center h-full gap-3">
-            {props?.data?.imageUrl ? (
-              <img
-                src={props?.data?.imageUrl}
-                alt={props?.data?.originalname}
-                width={50}
-                height={50}
-              />
-            ) : (
-              <img
-                src={"/product-placeholder.png"}
-                alt="placeholder"
-                width={50}
-                height={50}
-              />
-            )}
-          </div>
-        ),
+        cellRenderer: (props) => {
+          console.log("__props", props.data);
+          return (
+            <div className="flex flex-row justify-center items-center h-full gap-3">
+              {props?.data?.imageUrl ? (
+                <img
+                  src={props?.data?.imageUrl}
+                  alt={props?.data?.originalname}
+                  width={70}
+                  height={70}
+                  onError={(e) => {
+                    e.target.src = "/product-placeholder.png";
+                  }}
+                />
+              ) : (
+                <img
+                  src={"/product-placeholder.png"}
+                  alt="placeholder"
+                  width={50}
+                  height={50}
+                />
+              )}
+            </div>
+          );
+        },
       },
       {
         field: "product_sku",
@@ -159,6 +170,7 @@ const ProductList = () => {
               onClick={() => {
                 setSelectedRowData(props.data);
                 setIsEditMOdalOpen(!isEditMOdalOpen);
+                navigate(`/update-product/${props.data?.id}`);
               }}
             >
               <CiEdit size={25} />
@@ -192,7 +204,7 @@ const ProductList = () => {
             variant: "success",
           });
           setIsDeleteModelOpen(false);
-          getAllProduct();
+          getAllProduct({ offset: INITIAL_CURRENT_PAGE });
           setSelectedRowData({});
         }
       })
@@ -208,59 +220,66 @@ const ProductList = () => {
       });
   };
 
-  const handleClickUpdateProduct = async (e) => {
-    e.preventDefault();
-    await axiosInstance
-      .post(
-        `/updateProduct/${contextData?.user?.id}`,
-        selectedRowData,
-        contextData?.config
-      )
-      .then((res) => {
-        if (res?.statusText === "OK") {
-          enqueueSnackbar(res?.data?.message, {
-            variant: "success",
-          });
-          getAllProduct();
-          setIsEditMOdalOpen(false);
-          setSelectedRowData({});
-        }
-      })
-      .catch((error) => {
-        console.log("__error", error);
-        enqueueSnackbar(error?.response?.data?.message || error.message, {
-          variant: "error",
-        });
-      });
-  };
+  // const handleClickUpdateProduct = async (e) => {
+  //   e.preventDefault();
+  //   await axiosInstance
+  //     .post(
+  //       `/updateProduct/${contextData?.user?.id}`,
+  //       selectedRowData,
+  //       contextData?.config
+  //     )
+  //     .then((res) => {
+  //       if (res?.statusText === "OK") {
+  //         enqueueSnackbar(res?.data?.message, {
+  //           variant: "success",
+  //         });
+  //         getAllProduct({ offset: INITIAL_CURRENT_PAGE });
+  //         setIsEditMOdalOpen(false);
+  //         setSelectedRowData({});
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       enqueueSnackbar(error?.response?.data?.message || error.message, {
+  //         variant: "error",
+  //       });
+  //     });
+  // };
 
   return (
-    <>
-      <div className="product-list flex-col flex justify-center items-top h-full">
+    <div className="flex justify-center items-start w-full">
+      <div className="product-list flex-col flex justify-start items-top h-full my-3 w-full max-w-[1640px]">
+        <div className="flex justify-end p-4 w-full max-w-[1640px]">
+          <button
+            className="bg-green-1 hover:bg-green-2 p-3 rounded-lg transition-text duration-300"
+            onClick={() => navigate("/add-product")}
+          >
+            Add Product
+          </button>
+        </div>
         <div className="top-0 ag-theme-quartz h-full p-4 w-full max-w-[1640px]">
-          <div className="flex justify-end py-5">
-            <button
-              className="bg-green-1 hover:bg-green-2 p-3 rounded-lg transition-text duration-300"
-              onClick={() => navigate("/add-product")}
-            >
-              Add Product
-            </button>
-          </div>
-          <div className="relative min-h-40">
+          <div className="relative">
             <AgGridReact
               rowData={data}
               columnDefs={columnsAgGrid}
               defaultColDef={defaultColDefs}
               rowSelection="multiple"
-              // domLayout={data.length <= 5 ? undefined : "autoHeight"}
+              domLayout={"autoHeight"}
               reactiveCustomComponents
               suppressModelUpdateAfterUpdateTransaction={true}
               suppressDragLeaveHidesColumns={true}
               noRowsOverlayComponent={TablePlaceHolderHelper}
             />
           </div>
-          <Pagination />
         </div>
+        <Pagination
+          dataList={data}
+          totalItems={totalProductsCount}
+          itemsPerPage={SHOW_ITEMS_PER_PAGE}
+          currentPage={currentPage}
+          GetProductsList={getAllProduct}
+          setCurrentPage={setCurrentPage}
+          setShowProductsPerPage={setShowProductsPerPage}
+        />
       </div>
       <Modal
         label={
@@ -297,7 +316,7 @@ const ProductList = () => {
           ),
         })}
       />
-    </>
+    </div>
   );
 };
 
