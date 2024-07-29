@@ -5,61 +5,26 @@ import React, {
   useRef,
   useState,
 } from "react";
-import Card from "./card";
 import axiosInstance from "../services/axios-client";
-import { INITIAL_CURRENT_PAGE, SHOW_ITEMS_PER_PAGE } from "../constants";
-import { enqueueSnackbar } from "notistack";
 import { AuthenticateContext } from "../App";
+import { enqueueSnackbar } from "notistack";
 import { ShimmerSimpleGallery } from "react-shimmer-effects";
+import Card from "../component/card";
 import { reduce } from "lodash";
 
-const DashboardProducts = () => {
+const FavoriteList = () => {
   const ref = useRef(true);
-  const [data, setData] = useState([]);
   const { contextData } = useContext(AuthenticateContext);
   const [isFavorite, setIsFavorite] = useState({});
-  const [totalProductsCount, setTotalProductsCount] = useState(0);
-  const [favoriteList, setFavoriteList] = useState([]);
+  const [favoriteProductList, setFavoriteProductList] = useState([]);
 
-  const getAllProduct = async ({ offset }) => {
-    await axiosInstance
-      .get(`/getAllProducts?limit=${SHOW_ITEMS_PER_PAGE}&offset=${offset}`)
-      .then((res) => {
-        if (res) {
-          const response = res?.data?.data?.map((item, index) => {
-            return {
-              ...item,
-              index: index + 1,
-            };
-          });
-          setData(response);
-          setTotalProductsCount(res?.data?.totalCount);
-        }
-      })
-      .catch((error) => {
-        enqueueSnackbar(error?.response?.data?.message || error.message, {
-          variant: "error",
-        });
-      });
-  };
-
-  useEffect(() => {
-    const list = data?.map((i) => {
-      const isFavoriteData = favoriteList.filter(
-        (item) => item?.productId === i?.id
-      );
-      return {
-        ...i,
-        isFavorite: isFavoriteData[0]?.isFavorite ? true : false,
-      };
-    });
-    setData(list);
-  }, [favoriteList]);
-
-  const getFavoriteList = useCallback(async () => {
+  const GetFavoriteProductList = useCallback(async () => {
     if (contextData.token !== "") {
       await axiosInstance
-        .get(`/getFavoriteList/${contextData?.user?.id}`, contextData?.config)
+        .get(
+          `/getFavoriteProductList/${contextData?.user?.id}`,
+          contextData?.config
+        )
         .then((res) => {
           const result = reduce(
             res.data.data,
@@ -70,7 +35,7 @@ const DashboardProducts = () => {
             {}
           );
           setIsFavorite(result);
-          setFavoriteList(res?.data?.data);
+          setFavoriteProductList(res?.data?.data);
         })
         .catch((error) => {
           enqueueSnackbar(error?.response?.data?.message || error.message, {
@@ -80,6 +45,14 @@ const DashboardProducts = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contextData.token]);
+
+  useEffect(() => {
+    if (ref.current) {
+      GetFavoriteProductList();
+      ref.current = false;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const updateFavoriteList = useCallback(
     (data) => {
@@ -93,7 +66,7 @@ const DashboardProducts = () => {
             contextData?.config
           )
           .then((res) => {
-            getFavoriteList();
+            GetFavoriteProductList();
           })
           .catch((error) => {
             enqueueSnackbar(error?.response?.data?.message || error.message, {
@@ -107,36 +80,26 @@ const DashboardProducts = () => {
   );
 
   const handleClickFavorite = async (data) => {
-    console.log("__data", data);
-    console.log("__isFavorite[data?.id]", isFavorite[data?.id]);
     setIsFavorite((prevState) => {
       const newIsFavorite = {
         ...prevState,
         [data?.id]: !isFavorite[data?.id] || true,
       };
-      console.log("__newIsFavorite", newIsFavorite);
       return newIsFavorite;
     });
     updateFavoriteList(data);
   };
 
-  useEffect(() => {
-    if (contextData?.config) {
-      getFavoriteList();
-      getAllProduct({ offset: INITIAL_CURRENT_PAGE });
-    }
-  }, [contextData]);
-
   return (
     <>
       <section className="flex justify-center">
         <div className="w-full max-w-[1640px] mx-auto flex flex-col lg:flex-row justify-between items-start gap-2 p-4">
-          {data.length ? (
+          {favoriteProductList.length ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
-              {data?.map((item, index) => (
+              {favoriteProductList?.map((item, index) => (
                 <div key={index} className="w-full h-full max-h-96">
                   <Card
-                    data={item}
+                    data={{ ...item, ...item?.productData }}
                     isFavorite={isFavorite}
                     setIsFavorite={setIsFavorite}
                     handleClickFavorite={handleClickFavorite}
@@ -155,4 +118,4 @@ const DashboardProducts = () => {
   );
 };
 
-export default DashboardProducts;
+export default FavoriteList;

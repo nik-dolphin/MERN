@@ -12,11 +12,12 @@ import ProductList from "./layout/product-list";
 import { createContext, useEffect, useState } from "react";
 import { AUTH_TOKEN, USER } from "./constants";
 import UpdateProduct from "./layout/update-product";
+import FavoriteList from "./layout/favorite-list";
 export const AuthenticateContext = createContext();
 
 function App() {
   const t = localStorage.getItem(AUTH_TOKEN);
-  const token = !t ? JSON.parse(t) : null;
+  const token = t ? JSON.parse(t) : null;
   const userData = JSON.parse(localStorage.getItem(USER));
   const [contextData, setContextData] = useState({
     token: "",
@@ -65,6 +66,14 @@ function App() {
       ),
     },
     {
+      path: "/favorite-list",
+      element: (
+        <ProtectedRoute>
+          <FavoriteList />
+        </ProtectedRoute>
+      ),
+    },
+    {
       path: "login",
       element: <Login />,
     },
@@ -97,7 +106,7 @@ function App() {
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [token]);
 
   return (
     <div className="h-screen">

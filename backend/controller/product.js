@@ -2,6 +2,7 @@ const db = require("../model");
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
+const { getProductData } = require("../utils/utils");
 
 const Product = db.product;
 
@@ -115,23 +116,7 @@ const getProduct = async (req, res) => {
   })
     .then((response) => {
       if (response) {
-        const imageUrl = response?.imageFile?.filename
-          ? `${req.protocol}://${req.get("host")}/uploads/${
-              response?.imageFile?.filename
-            }`
-          : "";
-        const obj = {
-          id: response?._id,
-          product_sku: response.product_sku,
-          product_title: response.product_title,
-          product_Brand: response.product_Brand,
-          purchase_price: response.purchase_price,
-          retail_price: response.retail_price,
-          category: response.category,
-          quanitity: response.quanitity,
-          description: response.description,
-          imageUrl: imageUrl,
-        };
+        const obj = getProductData(req, response);
         return res.status(200).send({
           data: obj,
           message: "Product Fetched successfully",
@@ -178,9 +163,10 @@ const updateProduct = async (req, res) => {
     }).then((response) => {
       console.log("__response", response);
       if (response) {
-        return res
-          .status(200)
-          .send({ data: response, message: `Product ${response.product_sku} updated successfully` });
+        return res.status(200).send({
+          data: response,
+          message: `Product ${response.product_sku} updated successfully`,
+        });
       } else {
         return res.status(404).send({ message: "Product not found" });
       }
@@ -208,6 +194,7 @@ const deleteProduct = async (req, res) => {
       .send({ message: error.message || "Something went wrong" });
   }
 };
+
 
 module.exports = {
   addProduct,

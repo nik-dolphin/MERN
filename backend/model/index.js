@@ -6,5 +6,6 @@ db.mongoose = mongoose;
 db.user = require("./auth");
 db.token = require("./token");
 db.product = require("./product");
+db.favorite = require("./favorite");
 
 module.exports = db;

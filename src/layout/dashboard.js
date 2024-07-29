@@ -218,7 +218,7 @@ const Dashboard = () => {
           </div>
           <div className="w-full lg:w-1/3 m-0 h-full flex justify-center bg-[#f6fcfa] bg-[url('https://edyoda.s3.ap-south-1.amazonaws.com/public/strawberry-white.png')] bg-left bg-cover">
             <div className="max-w-[1024px] m-8">
-              <h className="text-4xl font-semibold">Follow Us</h>
+              <h3 className="text-4xl font-semibold">Follow Us</h3>
               <p className="text-gray-1 pt-2">
                 A wide range of products; many unusual and tasty products;
                 courteous staff.

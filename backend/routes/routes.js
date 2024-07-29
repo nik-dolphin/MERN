@@ -29,6 +29,7 @@ const {
   restrictTo,
 } = require("../middlewares/isAuthenticated");
 const { conditionalUpload } = require("../middlewares/conditionalUpload");
+const { isFavorite, getFavoriteList, getFavoriteProductList } = require("../controller/favoriteProduct");
 
 const router = express.Router();
 
@@ -74,5 +75,9 @@ router.delete(
   restrictTo,
   deleteProduct
 );
+
+router.post("/isFavorite/:id/:productId", isAuthenticated, isFavorite);
+router.get("/getFavoriteList/:id", isAuthenticated, getFavoriteList);
+router.get("/getFavoriteProductList/:id", isAuthenticated, getFavoriteProductList);
 
 module.exports = router;

@@ -29,10 +29,26 @@ const Navbar = () => {
   const [data, setData] = useState(defaultPasswordObj);
 
   const menuItemsUser = [
-    { icon: <TbTruckDelivery size={25} className="mr-4" />, text: "Orders" },
-    { icon: <MdFavorite size={25} className="mr-4" />, text: "Favorites" },
-    { icon: <FaWallet size={25} className="mr-4" />, text: "Wallet" },
-    { icon: <MdHelp size={25} className="mr-4" />, text: "Help" },
+    {
+      icon: <TbTruckDelivery size={25} className="mr-4" />,
+      text: "Orders",
+      routeUrl: "/",
+    },
+    {
+      icon: <MdFavorite size={25} className="mr-4" />,
+      text: "Favorites",
+      routeUrl: "/favorite-list",
+    },
+    {
+      icon: <FaWallet size={25} className="mr-4" />,
+      text: "Wallet",
+      routeUrl: "/",
+    },
+    {
+      icon: <MdHelp size={25} className="mr-4" />,
+      text: "Help",
+      routeUrl: "/",
+    },
   ];
   const menuItemsAdmin = [
     {
@@ -115,11 +131,11 @@ const Navbar = () => {
           {contextData?.user && contextData?.user?.role === "0" && (
             <nav className="hidden lg:block">
               <ul className="flex text-gray-800 gap-2">
-                {menuItemsUser.map(({ icon, text }, index) => {
+                {menuItemsUser.map(({ icon, text, routeUrl }, index) => {
                   return (
                     <div key={index}>
                       <li className="text-xl flex cursor-pointer rounded-full mx-auto p-2 hover:text-white hover:bg-black">
-                        {text}
+                        <Link to={routeUrl}>{text}</Link>
                       </li>
                     </div>
                   );
@@ -153,8 +169,8 @@ const Navbar = () => {
                     placeholder="Search foods"
                   />
                 </div>
-                <button className="bg-black text-white hidden md:flex items-center py-2 rounded-full border border-black px-5">
-                  <BsFillCartFill size={20} className="mr-2" /> Cart
+                <button className="bg-black text-white hidden md:flex items-center py-2 rounded-full border border-black px-3">
+                  <BsFillCartFill size={20} />
                 </button>
               </>
             )}
