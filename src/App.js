@@ -13,6 +13,7 @@ import { createContext, useEffect, useState } from "react";
 import { AUTH_TOKEN, USER } from "./constants";
 import UpdateProduct from "./layout/update-product";
 import FavoriteList from "./layout/favorite-list";
+import CartList from "./component/cart-list";
 export const AuthenticateContext = createContext();
 
 function App() {
@@ -70,6 +71,14 @@ function App() {
       element: (
         <ProtectedRoute>
           <FavoriteList />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: "/cart-list",
+      element: (
+        <ProtectedRoute>
+          <CartList />
         </ProtectedRoute>
       ),
     },

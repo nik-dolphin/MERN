@@ -1,20 +1,24 @@
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import Card from "./card";
 import axiosInstance from "../services/axios-client";
-import { INITIAL_CURRENT_PAGE, SHOW_ITEMS_PER_PAGE } from "../constants";
+import {
+  ADD_TO_CART,
+  INITIAL_CURRENT_PAGE,
+  PRODUCT_LIST,
+  SHOW_ITEMS_PER_PAGE,
+} from "../constants";
 import { enqueueSnackbar } from "notistack";
 import { AuthenticateContext } from "../App";
 import { ShimmerSimpleGallery } from "react-shimmer-effects";
 import { reduce } from "lodash";
+import { addToCart } from "../redux/action";
+import { useDispatch, useSelector } from "react-redux";
+import { productList } from "../redux/actions/productAction";
 
 const DashboardProducts = () => {
-  const ref = useRef(true);
+  const dispatch = useDispatch();
+  const productData = useSelector((state) => state);
+  console.log("__productData", productData);
   const [data, setData] = useState([]);
   const { contextData } = useContext(AuthenticateContext);
   const [isFavorite, setIsFavorite] = useState({});
@@ -22,6 +26,7 @@ const DashboardProducts = () => {
   const [favoriteList, setFavoriteList] = useState([]);
 
   const getAllProduct = async ({ offset }) => {
+    dispatch(productList(PRODUCT_LIST, offset));
     await axiosInstance
       .get(`/getAllProducts?limit=${SHOW_ITEMS_PER_PAGE}&offset=${offset}`)
       .then((res) => {
@@ -107,14 +112,11 @@ const DashboardProducts = () => {
   );
 
   const handleClickFavorite = async (data) => {
-    console.log("__data", data);
-    console.log("__isFavorite[data?.id]", isFavorite[data?.id]);
     setIsFavorite((prevState) => {
       const newIsFavorite = {
         ...prevState,
         [data?.id]: !isFavorite[data?.id] || true,
       };
-      console.log("__newIsFavorite", newIsFavorite);
       return newIsFavorite;
     });
     updateFavoriteList(data);
@@ -126,6 +128,10 @@ const DashboardProducts = () => {
       getAllProduct({ offset: INITIAL_CURRENT_PAGE });
     }
   }, [contextData]);
+
+  const handleClickAddToCart = (data) => {
+    dispatch(addToCart(ADD_TO_CART, data));
+  };
 
   return (
     <>
@@ -140,6 +146,16 @@ const DashboardProducts = () => {
                     isFavorite={isFavorite}
                     setIsFavorite={setIsFavorite}
                     handleClickFavorite={handleClickFavorite}
+                    bottomBtn={() => (
+                      <>
+                        <button
+                          onClick={() => handleClickAddToCart(item)}
+                          className=" bg-green-1 hover:bg-green-2 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                        >
+                          Add to cart
+                        </button>
+                      </>
+                    )}
                   />
                 </div>
               ))}

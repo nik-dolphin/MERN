@@ -11,9 +11,13 @@ import { enqueueSnackbar } from "notistack";
 import { ShimmerSimpleGallery } from "react-shimmer-effects";
 import Card from "../component/card";
 import { reduce } from "lodash";
+import { ADD_TO_CART } from "../constants";
+import { addToCart } from "../redux/action";
+import { useDispatch } from "react-redux";
 
 const FavoriteList = () => {
   const ref = useRef(true);
+  const dispatch = useDispatch();
   const { contextData } = useContext(AuthenticateContext);
   const [isFavorite, setIsFavorite] = useState({});
   const [favoriteProductList, setFavoriteProductList] = useState([]);
@@ -89,6 +93,9 @@ const FavoriteList = () => {
     });
     updateFavoriteList(data);
   };
+  const handleClickAddToCart = (data) => {
+    dispatch(addToCart(ADD_TO_CART, data));
+  };
 
   return (
     <>
@@ -103,6 +110,16 @@ const FavoriteList = () => {
                     isFavorite={isFavorite}
                     setIsFavorite={setIsFavorite}
                     handleClickFavorite={handleClickFavorite}
+                    bottomBtn={() => (
+                      <>
+                        <button
+                          onClick={() => handleClickAddToCart(item)}
+                          className=" bg-green-1 hover:bg-green-2 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                        >
+                          Add to cart
+                        </button>
+                      </>
+                    )}
                   />
                 </div>
               ))}

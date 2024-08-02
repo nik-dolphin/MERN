@@ -1,8 +1,7 @@
 import React from "react";
 import { FaHeart, FaRegHeart, FaRupeeSign } from "react-icons/fa";
 
-const Card = ({ data, isFavorite, handleClickFavorite }) => {
-
+const Card = ({ data, isFavorite, handleClickFavorite, bottomBtn }) => {
   return (
     <div className="relative w-full h-full flex flex-col gap-4 max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
       <div className="absolute right-0 p-2">
@@ -94,12 +93,13 @@ const Card = ({ data, isFavorite, handleClickFavorite }) => {
             <FaRupeeSign />
             {data?.purchase_price}
           </span>
-          <button
-            // onClick={handleClickAddToCart}
-            className=" bg-green-1 hover:bg-green-2 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-          >
-            Add to cart
-          </button>
+          {bottomBtn ? (
+            bottomBtn()
+          ) : (
+            <button className=" bg-green-1 hover:bg-green-2 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+              Add to cart
+            </button>
+          )}
         </div>
       </div>
     </div>

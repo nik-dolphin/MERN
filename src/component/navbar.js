@@ -13,9 +13,12 @@ import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import Modal from "./modal";
 import ChangePasswordForm from "./forms/change-password-form";
 import { AuthenticateContext } from "../App";
+import { useSelector } from "react-redux";
 
 const Navbar = () => {
   const { contextData } = useContext(AuthenticateContext);
+  const cartData = useSelector((state) => state.cartData);
+  console.log("__cardData", cartData);
   let navigate = useNavigate();
   const [nav, setNav] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
@@ -169,8 +172,11 @@ const Navbar = () => {
                     placeholder="Search foods"
                   />
                 </div>
-                <button className="bg-black text-white hidden md:flex items-center py-2 rounded-full border border-black px-3">
+                <button className="relative bg-black text-white hidden md:flex items-center py-2 rounded-full border border-black px-3" onClick={() => {navigate('/cart-list')}}>
                   <BsFillCartFill size={20} />
+                  <span className="absolute top-0 right-0 bg-red-700 w-2/4 h-2/4 flex justify-center items-center rounded-full translate-x-2 -translate-y-1">
+                    {cartData.length}
+                  </span>
                 </button>
               </>
             )}
