@@ -27,3 +27,18 @@ export const productCategoryList = [
     value: "fast-foods",
   },
 ];
+
+export const productShortList = [
+  {
+    label: "Short By (price)",
+    value: "",
+  },
+  {
+    label: "ascending",
+    value: "asc",
+  },
+  {
+    label: "descending",
+    value: "desc",
+  },
+];

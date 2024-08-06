@@ -15,7 +15,7 @@ const SelectInput = ({ list = [], selected, setSelected, placeholder }) => {
     <Listbox value={selected} onChange={setSelected}>
       {({ open }) => (
         <>
-          <div className="relative mt-2">
+          <div className="relative">
             <ListboxButton className="relative w-full cursor-pointer rounded-md bg-gray-50 p-2.5 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-900 sm:text-sm sm:leading-6">
               <span className="flex items-center justify-between">
                 <span className="block truncate">

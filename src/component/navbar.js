@@ -14,6 +14,7 @@ import Modal from "./modal";
 import ChangePasswordForm from "./forms/change-password-form";
 import { AuthenticateContext } from "../App";
 import { useSelector } from "react-redux";
+import PopOver from "./popOver";
 
 const Navbar = () => {
   const { contextData } = useContext(AuthenticateContext);
@@ -172,7 +173,12 @@ const Navbar = () => {
                     placeholder="Search foods"
                   />
                 </div>
-                <button className="relative bg-black text-white hidden md:flex items-center py-2 rounded-full border border-black px-3" onClick={() => {navigate('/cart-list')}}>
+                <button
+                  className="relative bg-black text-white hidden md:flex items-center py-2 rounded-full border border-black px-3"
+                  onClick={() => {
+                    navigate("/cart-list");
+                  }}
+                >
                   <BsFillCartFill size={20} />
                   <span className="absolute top-0 right-0 bg-red-700 w-2/4 h-2/4 flex justify-center items-center rounded-full translate-x-2 -translate-y-1">
                     {cartData.length}
@@ -180,6 +186,7 @@ const Navbar = () => {
                 </button>
               </>
             )}
+            {/* <PopOver /> */}
             <div
               id="user-dropdown"
               className="relative inline-block text-left dropdown w-11"
@@ -190,7 +197,7 @@ const Navbar = () => {
                 </PopoverButton>
                 <PopoverPanel
                   anchor="bottom"
-                  className="flex flex-col bg-slate-100 right-0 w-60 rounded-md shadow-sm shadow-slate-600"
+                  className="flex flex-col bg-slate-100 right-0 w-20 rounded-md shadow-sm shadow-slate-600"
                 >
                   <div
                     className="hover:bg-slate-400 px-5 py-3 cursor-pointer"
