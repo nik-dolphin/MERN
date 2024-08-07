@@ -14,6 +14,8 @@ import { AUTH_TOKEN, USER } from "./constants";
 import UpdateProduct from "./layout/update-product";
 import FavoriteList from "./layout/favorite-list";
 import CartList from "./component/cart-list";
+import Checkout from "./component/checkout/checkout";
+import SuccessPayment from "./component/checkout/success-payment";
 export const AuthenticateContext = createContext();
 
 function App() {
@@ -79,6 +81,22 @@ function App() {
       element: (
         <ProtectedRoute>
           <CartList />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: "/checkout",
+      element: (
+        <ProtectedRoute>
+          <Checkout />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: "/checkout/success",
+      element: (
+        <ProtectedRoute>
+          <SuccessPayment />
         </ProtectedRoute>
       ),
     },

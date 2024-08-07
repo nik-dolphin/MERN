@@ -1,20 +1,24 @@
 import React, { useCallback, useContext, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { ShimmerSimpleGallery } from "react-shimmer-effects";
 import axiosInstance from "../services/axios-client";
 import { enqueueSnackbar } from "notistack";
 import { AuthenticateContext } from "../App";
 import { reduce } from "lodash";
 import Card from "./card";
-import { ADD_TO_CART, EMPTY_CART, REMOVE_FROM_CART } from "../constants";
-import { addToCart, emptyCart, removeToCart } from "../redux/action";
+import { EMPTY_CART, REMOVE_FROM_CART } from "../constants";
+import { emptyCart, removeToCart } from "../redux/action";
+import { useNavigate } from "react-router-dom";
+import { FaRupeeSign } from "react-icons/fa";
+import { LiaRupeeSignSolid } from "react-icons/lia";
 
 const CartList = () => {
   const dispatch = useDispatch();
+  let navigate = useNavigate();
   const { contextData } = useContext(AuthenticateContext);
   const cartData = useSelector((state) => state.cartData);
+  console.log("__cartData", cartData);
+
   const [isFavorite, setIsFavorite] = useState({});
-  const [favoriteList, setFavoriteList] = useState([]);
 
   const getFavoriteList = useCallback(async () => {
     if (contextData.token !== "") {
@@ -30,7 +34,6 @@ const CartList = () => {
             {}
           );
           setIsFavorite(result);
-          setFavoriteList(res?.data?.data);
         })
         .catch((error) => {
           enqueueSnackbar(error?.response?.data?.message || error.message, {
@@ -66,58 +69,103 @@ const CartList = () => {
     [contextData, isFavorite]
   );
 
-  const handleClickFavorite = async (data) => {
-    setIsFavorite((prevState) => {
-      const newIsFavorite = {
-        ...prevState,
-        [data?.id]: !isFavorite[data?.id] || true,
-      };
-      return newIsFavorite;
-    });
-    updateFavoriteList(data);
-  };
-
   const handleClickRemoveToCart = (data) => {
     dispatch(removeToCart(REMOVE_FROM_CART, data));
+    if (cartData?.length === 1) {
+      navigate("/");
+    }
   };
 
   const handleClickEmptyCart = () => {
     dispatch(emptyCart(EMPTY_CART));
+    navigate("/");
   };
 
   return (
-    <section className="p-5 h-5/6">
+    <section className="p-5 h-5/6 bg-gray-100">
       <div className="w-full text-right">
         <button
           onClick={handleClickEmptyCart}
-          className=" bg-green-1 hover:bg-green-2 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          className=" bg-green-1 uppercase hover:bg-green-2 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         >
           Empty cart
         </button>
       </div>
-      {cartData.length ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
-          {cartData?.map((item, index) => (
-            <div key={index} className="w-full h-full max-h-96">
-              <Card
-                data={item}
-                isFavorite={isFavorite}
-                setIsFavorite={setIsFavorite}
-                handleClickFavorite={handleClickFavorite}
-                bottomBtn={() => (
-                  <>
-                    <button
-                      onClick={() => handleClickRemoveToCart(item)}
-                      className=" bg-green-1 hover:bg-green-2 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                    >
-                      Remove to cart
-                    </button>
-                  </>
-                )}
-              />
+      <div className="flex flex-col justify-center items-center">
+        <div className="w-full flex justify-center items-start gap-4 max-w-6xl">
+          <div className="w-full md:w-3/5 bg-white box-shadow-custom rounded p-4">
+            {cartData?.map((item, index) => (
+              <div key={index}>
+                <div className="w-full h-full max-h-96 flex justify-start gap-4">
+                  <div className="flex justify-center items-center h-28 w-28">
+                    <img
+                      className="rounded-t-lg w-full h-full"
+                      src={item?.imageUrl}
+                      alt="product"
+                    />
+                  </div>
+                  <div className="flex flex-col justify-between">
+                    <div>
+                      <h3 className="text-xl font-semibold tracking-tight text-gray-900 dark:text-white line-clamp-1">
+                        {item?.product_title}
+                      </h3>
+                      <h5 className="tracking-tight text-gray-900 dark:text-white line-clamp-2">
+                        {item?.description}
+                      </h5>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xl lg:text-3xl text-gray-900 dark:text-white flex items-center">
+                        <LiaRupeeSignSolid />
+                        {item?.purchase_price}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleClickRemoveToCart(item)}
+                  className="focus:outline-none font-medium rounded-lg text-sm my-2.5 text-center hover:text-green-1"
+                >
+                  REMOVE
+                </button>
+              </div>
+            ))}
+          </div>
+          <div className="w-full md:w-5/12 bg-white box-shadow-custom rounded">
+            <h3 className="text-xl font-medium tracking-tight text-gray-400 uppercase dark:text-white line-clamp-1 px-4 py-3">
+              Price details
+            </h3>
+            <hr />
+            <div className="mx-4 border-b-2 border-dashed border-gray-400">
+              <div className="flex justify-between items-center py-2">
+                <div>{`Price (${cartData.length} ${
+                  cartData.length === 1 ? "item" : "items"
+                })`}</div>
+              </div>
+              <div className="flex justify-between items-center py-2">
+                <div>Discount</div>
+              </div>
+              <div className="flex justify-between items-center py-2">
+                <div>Delivery Charges</div>
+              </div>
             </div>
-          ))}
+            <div className="px-4">
+              <div className="flex justify-between items-center py-2">
+                <div>{`Price (${cartData.length} ${
+                  cartData.length === 1 ? "item" : "items"
+                })`}</div>
+              </div>
+            </div>
+          </div>
         </div>
+        <button
+          onClick={() => navigate("/checkout")}
+          className=" bg-green-1 hover:bg-green-2 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        >
+          Checkout
+        </button>
+      </div>
+      {cartData.length ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4"></div>
       ) : (
         <div className="flex justify-center items-center h-3/4">
           No Data found

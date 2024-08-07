@@ -18,9 +18,11 @@ import { FaSearch } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
 import SelectInput from "./select-input";
 import { productShortList } from "../utility/utils";
+import { useNavigate } from "react-router-dom";
 
 const DashboardProducts = () => {
   const dispatch = useDispatch();
+  let navigate = useNavigate();
   const productData = useSelector((state) => state);
   const [data, setData] = useState([]);
   const { contextData } = useContext(AuthenticateContext);
@@ -231,7 +233,10 @@ const DashboardProducts = () => {
                     bottomBtn={() => (
                       <>
                         <button
-                          onClick={() => handleClickAddToCart(item)}
+                          onClick={() => {
+                            handleClickAddToCart(item);
+                            navigate("/cart-list");
+                          }}
                           className=" bg-green-1 hover:bg-green-2 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                         >
                           Add to cart

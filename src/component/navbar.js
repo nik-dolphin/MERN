@@ -9,12 +9,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { AUTH_TOKEN } from "../constants";
 import { enqueueSnackbar } from "notistack";
 import axiosInstance from "../services/axios-client";
-import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import Modal from "./modal";
 import ChangePasswordForm from "./forms/change-password-form";
 import { AuthenticateContext } from "../App";
 import { useSelector } from "react-redux";
-import PopOver from "./popOver";
+import Dropdown from "./dropdown";
 
 const Navbar = () => {
   const { contextData } = useContext(AuthenticateContext);
@@ -132,6 +131,7 @@ const Navbar = () => {
               </h1>
             </Link>
           </div>
+
           {contextData?.user && contextData?.user?.role === "0" && (
             <nav className="hidden lg:block">
               <ul className="flex text-gray-800 gap-2">
@@ -165,14 +165,6 @@ const Navbar = () => {
           <div className="flex gap-2">
             {contextData?.user && contextData?.user?.role === "0" && (
               <>
-                <div className="bg-gray-200 rounded-full hidden md:flex items-center px-2 w-[200px] sm:w-[400px] lg:w-[500px]">
-                  <AiOutlineSearch size={25} />
-                  <input
-                    className="bg-transparent p-2 w-full focus:outline-none"
-                    type="text"
-                    placeholder="Search foods"
-                  />
-                </div>
                 <button
                   className="relative bg-black text-white hidden md:flex items-center py-2 rounded-full border border-black px-3"
                   onClick={() => {
@@ -186,34 +178,25 @@ const Navbar = () => {
                 </button>
               </>
             )}
-            {/* <PopOver /> */}
-            <div
-              id="user-dropdown"
-              className="relative inline-block text-left dropdown w-11"
-            >
-              <Popover className="relative">
-                <PopoverButton className="bg-green-1 text-black flex justify-center items-center rounded-full h-11 w-full text-sm font-medium leading-5 transition-bg duration-150 ease-in-out hover:bg-green-2 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:bg-gray-500 active:text-gray-800">
-                  <FaRegUser size={20} className="" />
-                </PopoverButton>
-                <PopoverPanel
-                  anchor="bottom"
-                  className="flex flex-col bg-slate-100 right-0 w-20 rounded-md shadow-sm shadow-slate-600"
-                >
-                  <div
-                    className="hover:bg-slate-400 px-5 py-3 cursor-pointer"
-                    onClick={() => setIsChangePasswordModalOpen(true)}
-                  >
-                    Change Password
+            <Dropdown
+              data={{
+                buttonData: (
+                  <div className="bg-green-1 text-black flex justify-center items-center rounded-full h-11 w-full text-sm font-medium leading-5 transition-bg duration-150 ease-in-out hover:bg-green-2 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:bg-gray-500 active:text-gray-800">
+                    <FaRegUser size={20} />
                   </div>
-                  <div
-                    className="hover:bg-slate-400 px-5 py-3 border border-t-2 cursor-pointer"
-                    onClick={() => setIsLogoutModalOpen(true)}
-                  >
-                    Logout
-                  </div>
-                </PopoverPanel>
-              </Popover>
-            </div>
+                ),
+                list: [
+                  {
+                    label: "Change Password",
+                    onclick: () => setIsChangePasswordModalOpen(true),
+                  },
+                  {
+                    label: "Sign out",
+                    onclick: () => setIsLogoutModalOpen(true),
+                  },
+                ],
+              }}
+            />
           </div>
           {nav ? (
             <div className="block lg:hidden bg-black/80 fixed w-full h-screen z-10 top-0 left-0"></div>

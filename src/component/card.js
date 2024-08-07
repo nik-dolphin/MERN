@@ -89,7 +89,7 @@ const Card = ({ data, isFavorite, handleClickFavorite, bottomBtn }) => {
           </span>
         </div> */}
         <div className="flex items-center justify-between">
-          <span className="text-3xl font-bold text-gray-900 dark:text-white flex items-center">
+          <span className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white flex items-center">
             <FaRupeeSign />
             {data?.purchase_price}
           </span>
