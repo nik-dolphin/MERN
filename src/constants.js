@@ -3,6 +3,7 @@ export const USER = "eats_user";
 export const SHOW_ITEMS_PER_PAGE = 6;
 export const INITIAL_CURRENT_PAGE = 1;
 export const ADD_TO_CART = "ADD_TO_CART";
+export const ADD_ALL_CART = "ADD_ALL_CART";
 export const REMOVE_FROM_CART = "REMOVE_FROM_CART";
 export const EMPTY_CART = "EMPTY_CART";
 export const PRODUCT_LIST = "PRODUCT_LIST";

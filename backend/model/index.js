@@ -7,5 +7,6 @@ db.user = require("./auth");
 db.token = require("./token");
 db.product = require("./product");
 db.favorite = require("./favorite");
+db.cartData = require("./cartData");
 
 module.exports = db;

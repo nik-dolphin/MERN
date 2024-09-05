@@ -8,6 +8,11 @@ const PORT = process.env.PORT;
 const routes = require("./routes/routes");
 const path = require("path");
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+app.use((req, res, next) => {
+  res.set("Document-Policy", "js-profiling");
+  next();
+});
 // Middleware
 app.use(cors());
 app.use(express.json());

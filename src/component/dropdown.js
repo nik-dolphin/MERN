@@ -1,7 +1,6 @@
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 
 export default function Dropdown(props) {
-  console.log("__props", props);
   const { data } = props;
 
   return (
@@ -15,8 +14,8 @@ export default function Dropdown(props) {
       >
         <div className="py-1">
           {data?.list?.length &&
-            data?.list.map((item) => (
-              <MenuItem>
+            data?.list.map((item, i) => (
+              <MenuItem key={i}>
                 <div
                   onClick={item?.onclick}
                   className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 cursor-pointer"

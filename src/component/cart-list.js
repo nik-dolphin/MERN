@@ -1,21 +1,20 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axiosInstance from "../services/axios-client";
 import { enqueueSnackbar } from "notistack";
 import { AuthenticateContext } from "../App";
 import { reduce } from "lodash";
-import Card from "./card";
-import { EMPTY_CART, REMOVE_FROM_CART } from "../constants";
-import { emptyCart, removeToCart } from "../redux/action";
+import { ADD_ALL_CART, EMPTY_CART, REMOVE_FROM_CART } from "../constants";
+import { addToCart, emptyCart, removeToCart } from "../redux/action";
 import { useNavigate } from "react-router-dom";
-import { FaRupeeSign } from "react-icons/fa";
 import { LiaRupeeSignSolid } from "react-icons/lia";
 
 const CartList = () => {
   const dispatch = useDispatch();
   let navigate = useNavigate();
   const { contextData } = useContext(AuthenticateContext);
-  const cartData = useSelector((state) => state.cartData);
+  const { cartData } = useSelector((state) => state);
+  const [cartDetails, setCartDetails] = useState();
   console.log("__cartData", cartData);
 
   const [isFavorite, setIsFavorite] = useState({});
@@ -69,20 +68,77 @@ const CartList = () => {
     [contextData, isFavorite]
   );
 
-  const handleClickRemoveToCart = (data) => {
-    dispatch(removeToCart(REMOVE_FROM_CART, data));
-    if (cartData?.length === 1) {
-      navigate("/");
-    }
+  const handleClickRemoveToCart = async (data) => {
+    await axiosInstance
+      .delete(
+        `/removeFromCartData/${contextData?.user?.id}/${data?.id}`,
+        contextData?.config
+      )
+      .then((res) => {
+        console.log("__Res", res);
+        dispatch(removeToCart(REMOVE_FROM_CART, data));
+        if (cartData?.length === 1) {
+          navigate("/");
+        }
+      })
+      .catch((error) => {
+        enqueueSnackbar(error?.response?.data?.message || error.message, {
+          variant: "error",
+        });
+      });
   };
 
-  const handleClickEmptyCart = () => {
-    dispatch(emptyCart(EMPTY_CART));
-    navigate("/");
+  const handleClickEmptyCart = async () => {
+    console.log("__cartDetails asdsad", cartDetails);
+
+    await axiosInstance
+      .delete(
+        `/emptyCart/${cartDetails?.data?.data[0]?._id}`,
+        contextData?.config
+      )
+      .then((res) => {
+        console.log("__empty Data", res);
+        enqueueSnackbar(res?.data?.message, {
+          variant: "success",
+        });
+        dispatch(emptyCart(EMPTY_CART));
+        navigate("/");
+      })
+      .catch((error) => {
+        enqueueSnackbar(error?.response?.data?.message || error.message, {
+          variant: "error",
+        });
+      });
   };
+
+  const getCartList = useCallback(async () => {
+    if (contextData.token !== "") {
+      await axiosInstance
+        .get(`/getCartData/${contextData?.user?.id}`, contextData?.config)
+        .then((res) => {
+          const data = res?.data?.data[0]?.cartProductList;
+          console.log("__getAllData", res?.data?.data);
+          setCartDetails(res);
+          dispatch(addToCart(ADD_ALL_CART, data));
+        })
+        .catch((error) => {
+          enqueueSnackbar(error?.response?.data?.message || error.message, {
+            variant: "error",
+          });
+        });
+    }
+  }, []);
+
+  useEffect(() => {
+    console.log("__called", contextData);
+
+    if (contextData?.config) {
+      getCartList();
+    }
+  }, [contextData]);
 
   return (
-    <section className="p-5 h-5/6 bg-gray-100">
+    <section className="p-5 h-full bg-gray-100">
       <div className="w-full text-right">
         <button
           onClick={handleClickEmptyCart}
@@ -91,20 +147,20 @@ const CartList = () => {
           Empty cart
         </button>
       </div>
-      <div className="flex flex-col justify-center items-center">
-        <div className="w-full flex justify-center items-start gap-4 max-w-6xl">
+      <div className="flex flex-col justify-center items-center py-4">
+        <div className="w-full flex flex-col md:flex-row justify-center items-start gap-4 max-w-6xl py-4">
           <div className="w-full md:w-3/5 bg-white box-shadow-custom rounded p-4">
             {cartData?.map((item, index) => (
               <div key={index}>
                 <div className="w-full h-full max-h-96 flex justify-start gap-4">
-                  <div className="flex justify-center items-center h-28 w-28">
+                  <div className="flex justify-center items-center h-2/6 md:h-28 w-2/6 md:w-28">
                     <img
                       className="rounded-t-lg w-full h-full"
                       src={item?.imageUrl}
                       alt="product"
                     />
                   </div>
-                  <div className="flex flex-col justify-between">
+                  <div className="flex flex-col justify-between w-2/3">
                     <div>
                       <h3 className="text-xl font-semibold tracking-tight text-gray-900 dark:text-white line-clamp-1">
                         {item?.product_title}

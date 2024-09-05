@@ -14,6 +14,7 @@ import { reduce } from "lodash";
 import { ADD_TO_CART } from "../constants";
 import { addToCart } from "../redux/action";
 import { useDispatch } from "react-redux";
+// import NotFound from "/public/images/data_not_found.webm";
 
 const FavoriteList = () => {
   const ref = useRef(true);
@@ -21,6 +22,7 @@ const FavoriteList = () => {
   const { contextData } = useContext(AuthenticateContext);
   const [isFavorite, setIsFavorite] = useState({});
   const [favoriteProductList, setFavoriteProductList] = useState([]);
+  console.log("__isFavorite", isFavorite);
 
   const GetFavoriteProductList = useCallback(async () => {
     if (contextData.token !== "") {
@@ -30,10 +32,12 @@ const FavoriteList = () => {
           contextData?.config
         )
         .then((res) => {
+          console.log("__res.data.data", res.data.data);
+
           const result = reduce(
             res.data.data,
             (acc, item) => {
-              acc[item.productId] = item.isFavorite;
+              acc[item.productData?.id] = item.isFavorite;
               return acc;
             },
             {}
@@ -51,12 +55,12 @@ const FavoriteList = () => {
   }, [contextData.token]);
 
   useEffect(() => {
-    if (ref.current) {
+    if (ref.current && contextData.token !== "") {
       GetFavoriteProductList();
       ref.current = false;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [contextData]);
 
   const updateFavoriteList = useCallback(
     (data) => {
@@ -125,9 +129,15 @@ const FavoriteList = () => {
               ))}
             </div>
           ) : (
-            <>
-              <ShimmerSimpleGallery card imageHeight={300} caption col={2} />
-            </>
+            <div>
+            {/* <Lottie animationData={groovyWalkAnimation} loop={true} /> */}
+              {/* <img
+                className="rounded-t-lg w-full h-full"
+                src="/images/not-found.gif"
+                alt="not found"
+              /> */}
+              {/* <ShimmerSimpleGallery card imageHeight={300} caption col={2} /> */}
+            </div>
           )}
         </div>
       </section>

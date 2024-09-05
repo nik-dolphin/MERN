@@ -23,7 +23,6 @@ import { useNavigate } from "react-router-dom";
 const DashboardProducts = () => {
   const dispatch = useDispatch();
   let navigate = useNavigate();
-  const productData = useSelector((state) => state);
   const [data, setData] = useState([]);
   const { contextData } = useContext(AuthenticateContext);
   const [isFavorite, setIsFavorite] = useState({});
@@ -33,7 +32,7 @@ const DashboardProducts = () => {
   const [filteredData, setFilteredData] = useState([]);
   const [selected, setSelected] = useState(productShortList[0]);
 
-  const getAllProduct = async ({ offset }) => {
+  const getAllProduct = async ({ offset, favoriteLists }) => {
     dispatch(productList(PRODUCT_LIST, offset));
     await axiosInstance
       .get(`/getAllProducts?limit=${SHOW_ITEMS_PER_PAGE}&offset=${offset}`)
@@ -45,8 +44,17 @@ const DashboardProducts = () => {
               index: index + 1,
             };
           });
-          setData(response);
-          setFilteredData(response);
+          const list = response?.map((i) => {
+            const isFavoriteData = favoriteLists.filter(
+              (item) => item?.productId === i?.id
+            );
+            return {
+              ...i,
+              isFavorite: isFavoriteData[0]?.isFavorite ? true : false,
+            };
+          });
+          setData(list);
+          setFilteredData(list);
           setTotalProductsCount(res?.data?.totalCount);
         }
       })
@@ -86,6 +94,10 @@ const DashboardProducts = () => {
           );
           setIsFavorite(result);
           setFavoriteList(res?.data?.data);
+          getAllProduct({
+            offset: INITIAL_CURRENT_PAGE,
+            favoriteLists: res?.data?.data,
+          });
         })
         .catch((error) => {
           enqueueSnackbar(error?.response?.data?.message || error.message, {
@@ -135,11 +147,20 @@ const DashboardProducts = () => {
   useEffect(() => {
     if (contextData?.config) {
       getFavoriteList();
-      getAllProduct({ offset: INITIAL_CURRENT_PAGE });
     }
   }, [contextData]);
 
-  const handleClickAddToCart = (data) => {
+  const handleClickAddToCart = async (data) => {
+    await axiosInstance
+      .post(`/cartData/${contextData?.user?.id}`, data, contextData?.config)
+      .then((res) => {
+        console.log("__Res", res);
+      })
+      .catch((error) => {
+        enqueueSnackbar(error?.response?.data?.message || error.message, {
+          variant: "error",
+        });
+      });
     dispatch(addToCart(ADD_TO_CART, data));
   };
 
@@ -249,7 +270,12 @@ const DashboardProducts = () => {
             </div>
           ) : (
             <>
-              <ShimmerSimpleGallery card imageHeight={300} caption col={2} />
+              {/* <ShimmerSimpleGallery
+                card
+                imageHeight={300}
+                caption
+                col={{ sl: 1, md: 4 }}
+              /> */}
             </>
           )}
         </div>

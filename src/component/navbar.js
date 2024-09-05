@@ -1,24 +1,25 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useContext, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { AiOutlineClose, AiOutlineMenu, AiOutlineSearch } from "react-icons/ai";
 import { BsFillCartFill } from "react-icons/bs";
 import { FaRegUser, FaWallet } from "react-icons/fa";
 import { MdFavorite, MdHelp } from "react-icons/md";
 import { TbTruckDelivery } from "react-icons/tb";
 import { Link, useNavigate } from "react-router-dom";
-import { AUTH_TOKEN } from "../constants";
+import { ADD_ALL_CART, AUTH_TOKEN } from "../constants";
 import { enqueueSnackbar } from "notistack";
 import axiosInstance from "../services/axios-client";
 import Modal from "./modal";
 import ChangePasswordForm from "./forms/change-password-form";
 import { AuthenticateContext } from "../App";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Dropdown from "./dropdown";
+import { addToCart } from "../redux/action";
 
 const Navbar = () => {
+  const dispatch = useDispatch();
   const { contextData } = useContext(AuthenticateContext);
   const cartData = useSelector((state) => state.cartData);
-  console.log("__cardData", cartData);
   let navigate = useNavigate();
   const [nav, setNav] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
@@ -29,7 +30,7 @@ const Navbar = () => {
     new_password: "",
     confirm_password: "",
   };
-  const [data, setData] = useState(defaultPasswordObj);
+ const [data , setData] = useState(defaultPasswordObj);
 
   const menuItemsUser = [
     {
@@ -113,6 +114,28 @@ const Navbar = () => {
         );
       });
   };
+
+  const getCartList = useCallback(async () => {
+    if (contextData.token !== "") {
+      await axiosInstance
+        .get(`/getCartData/${contextData?.user?.id}`, contextData?.config)
+        .then((res) => {
+          const data = res?.data?.data[0]?.cartProductList;
+          dispatch(addToCart(ADD_ALL_CART, data));
+        })
+        .catch((error) => {
+          enqueueSnackbar(error?.response?.data?.message || error.message, {
+            variant: "error",
+          });
+        });
+    }
+  }, [contextData]);
+
+  useEffect(() => {
+    if (contextData?.config) {
+      getCartList();
+    }
+  }, [contextData]);
 
   return (
     <>

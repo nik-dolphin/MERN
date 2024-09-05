@@ -5,6 +5,7 @@ import { AUTH_TOKEN, USER } from "../constants";
 import axiosInstance from "../services/axios-client";
 import CustomPasswordInput from "../component/custom-password-input";
 import { AuthenticateContext } from "../App";
+import { GoogleLogin } from "@react-oauth/google";
 
 const Login = () => {
   const { setContextData } = useContext(AuthenticateContext);
@@ -23,8 +24,8 @@ const Login = () => {
     });
   };
 
-  const handlSubmit = async (e) => {
-    e.preventDefault();
+  const loginUser = async (data) => {
+    console.log("__Data", data);
     await axiosInstance
       .post(`/login`, userData)
       .then((res) => {
@@ -49,6 +50,21 @@ const Login = () => {
           variant: "error",
         });
       });
+  };
+
+  const handlSubmit = async (e) => {
+    e.preventDefault();
+    await loginUser();
+  };
+
+  const googleResponseMessage = (response) => {
+    console.log("__response", response);
+  };
+
+  const googleErrorMessage = (error) => {
+    enqueueSnackbar(error?.response?.data?.message || error?.message, {
+      variant: "error",
+    });
   };
   return (
     <section className="bg-gray-50 dark:bg-gray-900 h-full">
@@ -115,13 +131,20 @@ const Login = () => {
                   Forgot password?
                 </Link>
               </div>
-              <button
-                type="submit"
-                disabled={userData.email === "" || userData?.password === ""}
-                className="w-full text-white bg-green-1 disabled:bg-green-3 hover:bg-green-2 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-              >
-                Sign in
-              </button>
+              <div className="text-center flex flex-col gap-y-2 items-center">
+                <button
+                  type="submit"
+                  disabled={userData.email === "" || userData?.password === ""}
+                  className="w-full text-white bg-green-1 disabled:bg-green-3 hover:bg-green-2 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                >
+                  Sign in
+                </button>
+                <div className="w-full text-cente">OR</div>
+                <GoogleLogin
+                  onSuccess={googleResponseMessage}
+                  onError={googleErrorMessage}
+                />
+              </div>
               <p className="text-sm font-light text-gray-500 dark:text-gray-400">
                 Don’t have an account yet?{" "}
                 <Link

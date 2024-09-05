@@ -29,7 +29,17 @@ const {
   restrictTo,
 } = require("../middlewares/isAuthenticated");
 const { conditionalUpload } = require("../middlewares/conditionalUpload");
-const { isFavorite, getFavoriteList, getFavoriteProductList } = require("../controller/favoriteProduct");
+const {
+  isFavorite,
+  getFavoriteList,
+  getFavoriteProductList,
+} = require("../controller/favoriteProduct");
+const {
+  addCartData,
+  getCartData,
+  removeFromCartData,
+  emptyCart,
+} = require("../controller/cartData");
 
 const router = express.Router();
 
@@ -78,6 +88,19 @@ router.delete(
 
 router.post("/isFavorite/:id/:productId", isAuthenticated, isFavorite);
 router.get("/getFavoriteList/:id", isAuthenticated, getFavoriteList);
-router.get("/getFavoriteProductList/:id", isAuthenticated, getFavoriteProductList);
+router.get(
+  "/getFavoriteProductList/:id",
+  isAuthenticated,
+  getFavoriteProductList
+);
+
+router.post("/cartData/:id", isAuthenticated, addCartData);
+router.get("/getCartData/:id", isAuthenticated, getCartData);
+router.delete(
+  "/removeFromCartData/:userId/:deleteId",
+  isAuthenticated,
+  removeFromCartData
+);
+router.delete("/emptyCart/:deletId", isAuthenticated, emptyCart);
 
 module.exports = router;
